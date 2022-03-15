@@ -13,6 +13,13 @@ use Respect\Validation\Validator as v;
 
 class CommandController
 {
+	private $container = null; 
+	
+	public function __construct(\Slim\Container $container)
+	{
+		$this->container = $container;
+	}
+
 	public function listCommands(Request $req, Response $resp, array $args): Response
 	{
 		$res = [];

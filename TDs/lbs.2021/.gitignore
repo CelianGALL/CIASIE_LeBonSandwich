@@ -99,10 +99,11 @@ composer.phar
 # You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
 # composer.lock
 
-*.ini
+# *.ini
 /lbs_catalogue_service/src/vendor/
 /lbs_commande_service/src/vendor/
 /lbs_suivi_fab_service/src/vendor/
+/lbs_auth_service/src/vendor/
 /lbs_catalogue_web/src/vendor/
 /lbs_catalogue_web/src/templates/*/
 /doc/api.doc/docs/

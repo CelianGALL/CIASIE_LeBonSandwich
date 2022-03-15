@@ -60,6 +60,25 @@ services:
       - lbs.net
     depends_on:
       - mysql.commande
+  
+  # service api.auth.local : api backoffice pour l'authentification
+  api.auth.local:
+    image: 'canals/php:latest'
+    environment:
+      - VHOST_HOSTNAME=api.auth.local
+      - VHOST_DOCROOT=/var/www/public
+    ports:
+      - '19580:80'
+      - '19543:443'
+    volumes:
+      - './lbs_auth_service/pub:/var/www/public'
+      - './lbs_auth_service/src:/var/www/src'
+      - './lbs_auth_service/log:/var/log/api'
+    working_dir: /var/www/src
+    networks:
+      - lbs.net
+    depends_on:
+      - mysql.auth
 
   # service sql pour le stockage des commandes -
   # utilisé par l'api  commande et l'api suivi de fabrication
@@ -78,8 +97,24 @@ services:
     volumes:
       - './lbs_commande_service/sql:/var/sql'
 
+  # service sql pour l'authentification
+  # utilisé par l'api authentification
+  mysql.auth:
+    image: 'mariadb:latest'
+    command: '--default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_general_ci'
+    environment:
+      - MYSQL_ROOT_PASSWORD=comroot
+      - MYSQL_USER=auth_lbs
+      - MYSQL_PASSWORD=auth_lbs
+      - MYSQL_DATABASE=auth_lbs
+    ports:
+      - '3407:3306'
+    networks:
+      - lbs.net
+    volumes:
+      - './lbs_auth_service/sql:/var/sql'
 
-# service administration des bases sql
+  # service administration des bases sql
   adminer:
     image: adminer
     ports:

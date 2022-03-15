@@ -1,0 +1,7 @@
+driver=mysql
+username=auth_lbs
+password=auth_lbs
+host=mysql.auth
+database=auth_lbs
+charset=utf8
+collation=utf8_unicode_ci

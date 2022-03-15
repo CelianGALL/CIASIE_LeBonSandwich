@@ -60,13 +60,13 @@ $db->setAsGlobal(); /* rendre la connexion visible dans tout le projet */
 $db->bootEloquent(); /* établir la connexion */
 
 $app->get(
-	'/commandes',
+	'/commandes[/]',
 	function (Request $req, Response $resp, $args): Response {
 		$ctrl = new CommandController($this);
 		return $ctrl->listCommands($req, $resp, $args);
 	}
 )
-->setName('commandes'); // Ca c'est le nommage des routes dont je parle au début en tant que "générateur d'url de slim"
+->setName('commandes');
 
 $app->get(
 	'/commandes/{id}[/]',
