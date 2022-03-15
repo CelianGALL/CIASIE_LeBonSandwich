@@ -13,8 +13,8 @@ use Respect\Validation\Validator as v;
 
 class CommandController
 {
-	private $container = null; 
-	
+	private $container = null;
+
 	public function __construct(\Slim\Container $container)
 	{
 		$this->container = $container;
@@ -53,14 +53,13 @@ class CommandController
 				$items = Item::where("command_id", "like", $args["id"])->get(["id", "libelle", "tarif", "quantite"]);
 				$res["commandes"][0]["items"] = $items;
 			}
-			// Il faut utiliser le générateur d'url de slim pour générer ces routes à partir de leur nom et non en dur
-			// https://www.slimframework.com/docs/v3/objects/router.html#route-names
-			// 
-			// echo $app->getContainer()->get('router')->pathFor('hello', [
-			// 	'name' => 'Josh'
-			// ]);
-			$res["links"]["items"]["href"] = '/commandes/' . $args["id"] . '/items/';
-			$res["links"]["self"]["href"] = '/commandes/' . $args["id"];
+
+			/**
+			 * Retrouver la route associée à son nom
+			 * https://www.slimframework.com/docs/v3/objects/router.html#route-names
+			 */
+			$res["links"]["items"]["href"] = $this->container->get('router')->pathFor('commandes') . $args["id"] . '/items/';
+			$res["links"]["self"]["href"] = $this->container->get('router')->pathFor('commandes') . $args["id"];
 			if (isset($res["commandes"])) {
 				$resp = $resp->withHeader('Content-Type', 'application/json;charset=utf-8');
 				$resp->getBody()->write(json_encode($res));

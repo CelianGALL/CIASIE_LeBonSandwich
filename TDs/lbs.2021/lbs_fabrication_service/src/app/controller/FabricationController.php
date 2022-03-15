@@ -9,8 +9,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 class FabricationController
 {
-	private $container = null; 
-	
+	private $container = null;
+
 	public function __construct(\Slim\Container $container)
 	{
 		$this->container = $container;
@@ -23,7 +23,7 @@ class FabricationController
 		 */
 		$page = $req->getQueryParam("page", 1);
 		$size = $req->getQueryParam("size", 10);
-		
+
 		/**
 		 * Si le numéro de page demandé est < 0, retourne la 1ère page
 		 */
@@ -67,11 +67,15 @@ class FabricationController
 			"size" => $size,
 			"commands" => [],
 			"links" => [
+				/**
+				 * Retrouver la route associée à son nom
+				 * https://www.slimframework.com/docs/v3/objects/router.html#route-names
+				 */
 				"next" => [
-					"href" => '/commandes/?page=' . $next_page . '&size=' . $size
+					"href" => $this->container->get('router')->pathFor('commandes') . '?page=' . $next_page . '&size=' . $size
 				],
 				"prev" => [
-					"href" => '/commandes/?page=' . $previous_page . '&size=' . $size
+					"href" => $this->container->get('router')->pathFor('commandes') . '?page=' . $previous_page . '&size=' . $size
 				]
 
 			]
@@ -81,7 +85,7 @@ class FabricationController
 				"command" => $command,
 				"links" => [
 					"self" => [
-						"href" => '/commandes/' . $command["id"] . '/'
+						"href" => $this->container->get('router')->pathFor('commandes') . $command["id"] . '/'
 					]
 				]
 			];

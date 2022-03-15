@@ -66,4 +66,13 @@ $app->post(
 )
 ->setName('auth');
 
+$app->get(
+	'/check[/]',
+	function (Request $req, Response $resp, $args): Response {
+		$ctrl = new LBSAuthController($this);
+		return $ctrl->checkCredentials($req, $resp, $args);
+	}
+)
+->setName('check');
+
 $app->run();

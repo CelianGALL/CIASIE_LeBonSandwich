@@ -37,8 +37,8 @@ class LBSAuthController
 	{
 
 		if (!$rq->hasHeader('Authorization')) {
-
-			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="commande_api api" ', 'Content-Type', 'application/json;charset=utf-8');
+			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="commande_api api"');
+			$rs = $rs->withAddedHeader('Content-Type', 'application/json;charset=utf-8');
 			$rs->getBody()->write(json_encode([
 				"type" => "error",
 				"error" => "401",
@@ -47,37 +47,33 @@ class LBSAuthController
 			return $rs;
 		};
 
-		// $authstring = base64_decode(explode(" ", $rq->getHeader('Authorization')[0])[1]);
 		$authstring = base64_decode(explode(" ", $rq->getHeader('Authorization')[0])[1]);
-		var_dump($rq->getHeader("Authorization"));
-		echo $authstring;
 		list($email, $pass) = explode(':', $authstring);
 
 		try {
 			$user = User::select('id', 'email', 'username', 'passwd', 'refresh_token', 'level')->where('email', '=', $email)->firstOrFail();
-
-			if (!password_verify($pass, $user->passwd))
+			if (!password_verify($pass, $user->passwd)) {
 				throw new \Exception("password check failed");
+			};
 
 			unset($user->passwd);
 		} catch (ModelNotFoundException $e) {
-			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="lbs auth" ', 'Content-Type', 'application/json;charset=utf-8');
+			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="lbs auth"');
+			$rs = $rs->withAddedHeader('Content-Type', 'application/json;charset=utf-8');
 			$rs->getBody()->write(json_encode([
 				"type" => "error",
 				"error" => "401",
-				"message" => "Erreur d'authentification.",
+				"message" => "Erreur d'authentification",
 			]));
 			return $rs;
 		} catch (\Exception $e) {
-			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="lbs auth" ', 'Content-Type', 'application/json;charset=utf-8');
 			$rs->getBody()->write(json_encode([
 				"type" => "error",
 				"error" => "401",
-				"message" => "Erreur d'authentification.",
+				"message" => "Erreur d'authentification",
 			]));
 			return $rs;
 		}
-
 
 		$secret = $this->container->settings['secret'];
 		$token = JWT::encode(
@@ -103,10 +99,41 @@ class LBSAuthController
 			'refresh-token' => $user->refresh_token
 		];
 
-		return $rs->getBody()->write(json_encode([
-			"type" => "error",
-			"error" => "200",
+		$rs = $rs->withHeader('Content-Type', 'application/json;charset=utf-8');
+		$rs->getBody()->write(json_encode([
+			"type" => "success",
+			"code" => "200",
 			"message" => $data,
 		]));
+		return $rs;
+	}
+
+	public function checkCredentials(Request $rq, Response $rs, $args): Response
+	{
+		if (!$rq->hasHeader('Authorization')) {
+			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="commande_api api"');
+			$rs = $rs->withAddedHeader('Content-Type', 'application/json;charset=utf-8');
+			$rs->getBody()->write(json_encode([
+				"type" => "error",
+				"error" => "401",
+				"message" => "Accès refusé, header d'authentification manquant.",
+			]));
+			return $rs;
+		};
+
+		// J'en suis ici, je ne comprends pas comment comparer le token
+		// pour savoir s'il est valide puisqu'il n'existe pas dans la BDD
+		// + comment savoir quel utilisateur retourner 
+		$jwt = explode(" ", $rq->getHeader('Authorization')[0])[1];
+		$keyOrKeyArray = $this->container->settings['secret'];
+		$token = JWT::decode($jwt, $keyOrKeyArray);
+
+		$rs = $rs->withHeader('Content-Type', 'application/json;charset=utf-8');
+		$rs->getBody()->write(json_encode([
+			"type" => "success",
+			"code" => "200",
+			"message" => $token,
+		]));
+		return $rs;
 	}
 }
