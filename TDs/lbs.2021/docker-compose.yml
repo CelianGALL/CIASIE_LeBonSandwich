@@ -42,8 +42,7 @@ services:
       - mysql.commande
 
   # service api.suivi.fabrication : api backoffice pour le suivi de fabrication
-  #  commandes
-  #
+  # des commandes
   api.suivi.fabrication:
     image: 'canals/php:latest'
     environment:
@@ -80,9 +79,7 @@ services:
       - './lbs_commande_service/sql:/var/sql'
 
 
-#
 # service administration des bases sql
-#
   adminer:
     image: adminer
     ports:

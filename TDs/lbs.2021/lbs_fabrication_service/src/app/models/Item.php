@@ -1,6 +1,6 @@
 <?php
 
-namespace lbs\command\app\models;
+namespace lbs\fab\app\models;
 
 class Item extends \Illuminate\Database\Eloquent\Model
 {

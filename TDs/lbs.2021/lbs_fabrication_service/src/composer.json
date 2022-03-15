@@ -1,16 +1,16 @@
 {
-
-  "require" : {
+  "require": {
     "php": ">=7.4",
     "slim/slim": "^3.0",
-    "illuminate/database":"^8.0",
-    "monolog/monolog" : "^2.3.0"
+    "ramsey/uuid": "^3.7",
+    "illuminate/database": "^8.0",
+    "firebase/php-jwt": "^5.0",
+    "davidepastore/slim-validation": "^0.5.1",
+    "monolog/monolog": "^2.1"
   },
   "autoload": {
-    "psr-4" : {
-      "lbs\\fab\\" : "."
-
+    "psr-4": {
+      "lbs\\fab\\": "."
     }
-
   }
 }

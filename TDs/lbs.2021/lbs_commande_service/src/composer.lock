@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "54bf8a0c8fac5a344edcbf992e50167e",
+    "content-hash": "c9febde70cdaae1f1ca758ac6f573969",
     "packages": [
         {
             "name": "davidepastore/slim-validation",
@@ -2429,5 +2429,5 @@
         "php": ">=7.4"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }

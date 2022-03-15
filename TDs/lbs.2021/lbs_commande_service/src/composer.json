@@ -6,7 +6,7 @@
     "ramsey/uuid": "^3.7",
     "illuminate/database":"^8.0",
     "firebase/php-jwt": "^5.0",
-    "davidepastore/slim-validation": "^0.5",
+    "davidepastore/slim-validation": "^0.5.1",
     "monolog/monolog": "^2.1"
   },
   "autoload": {

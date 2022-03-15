@@ -1,6 +1,7 @@
 <?php
 
-namespace lbs\command\app\models;
+namespace lbs\fab\app\models;
+use lbs\fab\app\models;
 
 class Commande extends \Illuminate\Database\Eloquent\Model
 {

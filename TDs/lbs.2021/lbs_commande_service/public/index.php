@@ -2,14 +2,8 @@
 
 /**
  * File:  index.php
- *
- * 
- * IL ME RESTE LA DERNIERE QUESTION DU TD4 A FAIRE
- * 
  * IL FAUT UTILISER LE GENERATEUR D'URL DE SLIM POUR DONNER UN NOM AUX ROUTES ET LES APPELER DANS LE CONTROLEUR PAR LEUR NOM
  * PRATIQUE POUR NE PAS AVOIR A CHANGER TOUTES LES ROUTES DANS LE CONTROLEUR ET DANS L INDEX EN CAS DE CHANGEMENT
- * 
- * 
  */
 
 require_once  __DIR__ . '/../src/vendor/autoload.php';
@@ -17,14 +11,16 @@ require_once  __DIR__ . '/../src/vendor/autoload.php';
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-use \lbs\command\app\controller\TD1CommandController;
+use \lbs\command\app\controller\CommandController;
+
+use Respect\Validation\Validator as v;
 
 $configuration = [
 	'settings' => [
 		'displayErrorDetails' => true, // Mettre à false pour déployer l'api en mode production
 	],
 	'dbconf' => function ($c) {
-		return parse_ini_file(__DIR__ . '/../src/app/conf/commande.db.conf.ini');
+		return parse_ini_file(__DIR__ . '/../src/app/config/commande.db.conf.ini');
 	},
 	"notFoundHandler" => function ($c) {
 		return function ($req, $resp) {
@@ -66,25 +62,51 @@ $db->bootEloquent(); /* établir la connexion */
 $app->get(
 	'/commandes',
 	function (Request $req, Response $resp, $args): Response {
-		$ctrl = new TD1CommandController($this);
+		$ctrl = new CommandController($this);
 		return $ctrl->listCommands($req, $resp, $args);
 	}
-)->setName('commandes'); // Ca c'est le nommage des routes dont je parle au début en tant que "générateur d'url de slim"
+)
+->setName('commandes'); // Ca c'est le nommage des routes dont je parle au début en tant que "générateur d'url de slim"
 
 $app->get(
-	'/commandes/{id}',
+	'/commandes/{id}[/]',
 	function (Request $req, Response $resp, $args): Response {
-		$ctrl = new TD1CommandController($this);
+		$ctrl = new CommandController($this);
 		return $ctrl->listCommandsById($req, $resp, $args);
 	}
 )->setName('commandes_id');
 
 $app->get(
-	'/commandes/{id}/items',
+	'/commandes/{id}/items[/]',
 	function (Request $req, Response $resp, $args): Response {
-		$ctrl = new TD1CommandController($this);
+		$ctrl = new CommandController($this);
 		return $ctrl->listItemsByCommandId($req, $resp, $args);
 	}
 )->setName('commandes_id_items');
+
+
+
+// Create the addCommandValidator
+$nomValidator = v::stringType()->alpha();
+$mailValidator = v::email();
+$livraisonDateValidator = v::date('Y-m-d')->min('now');
+$livraisonHeureValidator = v::date('H:i');
+$itemsValidator = v::arrayType();
+$addCommandValidator = array(
+  'nom' => $nomValidator,
+  'mail' => $mailValidator,
+  'livraison' => array(
+    'date' => $livraisonDateValidator,
+	'heure' => $livraisonHeureValidator,
+  ),
+  'items' => $itemsValidator
+);
+$app->post(
+	'/commandes[/]',
+	function (Request $req, Response $resp, $args): Response {
+		$ctrl = new CommandController($this);
+		return $ctrl->addCommand($req, $resp, $args);
+	}
+)->setName('add_command')->add(new \DavidePastore\Slim\Validation\Validation($addCommandValidator));
 
 $app->run();

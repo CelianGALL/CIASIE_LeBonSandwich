@@ -59,6 +59,3 @@ La collection de 'Categorie', 'annonce', 'photo', 'Region', 'Departement'.
 | Method | URL                                                 |
 | :----- | :-------------------------------------------------- |
 | PUT    | /categories/{id}/annonces/{id_etape_1}/departement/{numero} |
-
-## 3. Conception sur le projet
-
