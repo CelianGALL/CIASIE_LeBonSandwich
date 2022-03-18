@@ -1,18 +1,12 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: canals5
- * Date: 18/11/2019
- * Time: 15:27
- */
-
 namespace lbs\auth\api\controller;
 
-
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\SignatureInvalidException;
+use Firebase\JWT\BeforeValidException;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use lbs\auth\api\models\User;
@@ -82,6 +76,8 @@ class LBSAuthController
 				'aud' => 'http://api.backoffice.local',
 				'iat' => time(),
 				'exp' => time() + (12 * 30 * 24 * 3600),
+				'uid' => $user->id,
+				'lvl' => $user->level,
 				'upr' => [
 					'email' => $user->email,
 					'username' => $user->username,
@@ -121,19 +117,54 @@ class LBSAuthController
 			return $rs;
 		};
 
-		// J'en suis ici, je ne comprends pas comment comparer le token
-		// pour savoir s'il est valide puisqu'il n'existe pas dans la BDD
-		// + comment savoir quel utilisateur retourner 
-		$jwt = explode(" ", $rq->getHeader('Authorization')[0])[1];
-		$keyOrKeyArray = $this->container->settings['secret'];
-		$token = JWT::decode($jwt, $keyOrKeyArray);
+		try {
+			$jwt = explode(" ", $rq->getHeader('Authorization')[0])[1];
+			$secret = $this->container->settings['secret'];
+			$token = JWT::decode($jwt, new Key($secret, 'HS512'));
 
-		$rs = $rs->withHeader('Content-Type', 'application/json;charset=utf-8');
-		$rs->getBody()->write(json_encode([
-			"type" => "success",
-			"code" => "200",
-			"message" => $token,
-		]));
-		return $rs;
+			$rs = $rs->withHeader('Content-Type', 'application/json;charset=utf-8');
+			$rs->getBody()->write(json_encode([
+				"type" => "success",
+				"code" => "200",
+				"message" => $token->upr
+			]));
+			return $rs;
+		} catch (ExpiredException $e) {
+			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="commande_api api"');
+			$rs = $rs->withAddedHeader('Content-Type', 'application/json;charset=utf-8');
+			$rs->getBody()->write(json_encode([
+				"type" => "error",
+				"error" => "401",
+				"message" => "Accès refusé, token expiré.",
+			]));
+			return $rs;
+		} catch (SignatureInvalidException $e) {
+			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="commande_api api"');
+			$rs = $rs->withAddedHeader('Content-Type', 'application/json;charset=utf-8');
+			$rs->getBody()->write(json_encode([
+				"type" => "error",
+				"error" => "401",
+				"message" => "Accès refusé, token invalide.",
+			]));
+			return $rs;
+		} catch (BeforeValidException $e) {
+			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="commande_api api"');
+			$rs = $rs->withAddedHeader('Content-Type', 'application/json;charset=utf-8');
+			$rs->getBody()->write(json_encode([
+				"type" => "error",
+				"error" => "401",
+				"message" => "Accès refusé, token invalide.",
+			]));
+			return $rs;
+		} catch (\UnexpectedValueException $e) {
+			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="commande_api api"');
+			$rs = $rs->withAddedHeader('Content-Type', 'application/json;charset=utf-8');
+			$rs->getBody()->write(json_encode([
+				"type" => "error",
+				"error" => "401",
+				"message" => "Accès refusé, token invalide.",
+			]));
+			return $rs;
+		}
 	}
 }

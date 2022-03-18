@@ -112,6 +112,7 @@ doc/internals/
 lbs_command_service/
 /lbs_fidelisation_service/src/vendor/
 /lbs_catalogue_service_sql/src/vendor/
-/lbs_commande_service/src/log/error.log
 /lbs_fabrication_service/src/vendor/
+/lbs_backoffice_service/src/vendor/
+/lbs_commande_service/src/log/error.log
 !/lbs_fabrication_service/log/debug.log

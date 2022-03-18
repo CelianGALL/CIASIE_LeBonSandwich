@@ -6,18 +6,15 @@
 
 require_once  __DIR__ . '/../src/vendor/autoload.php';
 
-use lbs\auth\api\controller\LBSAuthController;
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+
+use \lbs\backoffice\app\controller\BackOfficeController;
 
 $configuration = [
 	'settings' => [
 		'displayErrorDetails' => true, // Mettre à false pour déployer l'api en mode production
-		'secret' => base64_encode('mysecret')
 	],
-	'dbconf' => function ($c) {
-		return parse_ini_file(__DIR__ . '/../src/api/config/auth.db.conf.ini');
-	},
 	"notFoundHandler" => function ($c) {
 		return function ($req, $resp) {
 			$resp = $resp->withStatus(404);
@@ -55,22 +52,20 @@ $db->addConnection($c->dbconf); /* configuration avec nos paramètres */
 $db->setAsGlobal(); /* rendre la connexion visible dans tout le projet */
 $db->bootEloquent(); /* établir la connexion */
 
-$app->post(
+$app->get(
 	'/auth[/]',
 	function (Request $req, Response $resp, $args): Response {
-		$ctrl = new LBSAuthController($this);
-		return $ctrl->authenticate($req, $resp, $args);
+		$ctrl = new BackOfficeController($this);
+		return $ctrl->authRedirect($req, $resp, $args);
 	}
-)
-->setName('auth');
+)->setName('auth');
 
 $app->get(
-	'/check[/]',
+	'/commands[/]',
 	function (Request $req, Response $resp, $args): Response {
-		$ctrl = new LBSAuthController($this);
-		return $ctrl->checkCredentials($req, $resp, $args);
+		$ctrl = new BackOfficeController($this);
+		return $ctrl->commandsRedirect($req, $resp, $args);
 	}
-)
-->setName('check');
+)->setName('commands');
 
 $app->run();
