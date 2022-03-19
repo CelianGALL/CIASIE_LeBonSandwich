@@ -57,7 +57,7 @@ class LBSAuthController
 			$rs->getBody()->write(json_encode([
 				"type" => "error",
 				"error" => "401",
-				"message" => "Erreur d'authentification",
+				"message" => "Erreur d'authentification, utilisateur non trouvé.",
 			]));
 			return $rs;
 		} catch (\Exception $e) {

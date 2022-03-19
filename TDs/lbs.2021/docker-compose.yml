@@ -21,7 +21,6 @@ services:
   #######################################
 
   # service api.commande : api frontoffice pour la prise des commandes
-  #
   api.commande:
     image: 'canals/php:latest'
     environment:
@@ -39,8 +38,8 @@ services:
     depends_on:
       - mysql.commande
 
-  # service api.suivi.fabrication : api backoffice pour le suivi de fabrication
-  # des commandes
+  # service api.suivi.fabrication : api backoffice pour le suivi 
+  # de fabrication des commandes
   api.suivi.fabrication:
     image: 'canals/php:latest'
     environment:
@@ -59,28 +58,30 @@ services:
     depends_on:
       - mysql.commande
   
-  # service api.auth.local : api backoffice pour l'authentification
-  api.auth.local:
+  # service api.auth : api backoffice pour l'authentification
+  api.auth:
     image: 'canals/php:latest'
     environment:
       - VHOST_HOSTNAME=api.auth.local
       - VHOST_DOCROOT=/var/www/public
-    ports:
-      - '19580:80'
-      - '19543:443'
     volumes:
       - './lbs_auth_service/pub:/var/www/public'
       - './lbs_auth_service/src:/var/www/src'
       - './lbs_auth_service/log:/var/log/api'
     working_dir: /var/www/src
     networks:
-      - lbs.net
+      lbs.net:
+        aliases:
+            - api.auth.local
     depends_on:
       - mysql.auth
+    # ports:
+    #   - '19580:80'
+    #   - '19543:443'
 
   # service api.backoffice.local : api backoffice pour rediriger les requêtes
   # vers les bons services
-  api.backoffice.local:
+  api.backoffice:
     image: 'canals/php:latest'
     environment:
       - VHOST_HOSTNAME=api.backoffice.local
@@ -96,8 +97,57 @@ services:
     networks:
       - lbs.net
     depends_on:
-      - api.auth.local
+      - api.auth
       - api.suivi.fabrication
+
+  # service api.catalogue : api directus backend pour le catalogue
+  api.catalogue:
+    image: directus/directus:latest
+    volumes:
+      - ./lbs_catalogue_service/uploads:/directus/uploads
+      - ./lbs_catalogue_service/extensions:/directus/extensions
+    networks:
+      lbs.net:
+        aliases:
+          - api.catalogue.local
+    depends_on:
+      - mysql.catalogue
+    environment:
+      KEY: '255d861b-5ea1-5996-9aa3-922530ec40b1'
+      SECRET: '6116487b-cda1-52c2-b5b5-c8022c45e263'
+
+      DB_CLIENT: 'mysql'
+      DB_HOST: 'mysql.catalogue'
+      DB_PORT: '3306'
+      DB_DATABASE: 'catalogue_lbs'
+      DB_USER: 'catalogue_lbs'
+      DB_PASSWORD: 'catalogue_lbs'
+
+      CACHE_ENABLED: 'false'
+      ADMIN_EMAIL: 'admin@catalogue.net'
+      ADMIN_PASSWORD: 'catalogue'
+    # ports:
+    #   - 19055:8055
+
+  # service web.catalogue.local : api frontoffice pour
+  # la création de vues à l'aide du catalogue
+  web.catalogue:
+    image: 'canals/php:latest'
+    environment:
+      - VHOST_HOSTNAME=web.catalogue.local
+      - VHOST_DOCROOT=/var/www/public
+    ports:
+      - '19280:80'
+      - '19243:443'
+    volumes:
+      - './lbs_frontoffice_service/public:/var/www/public'
+      - './lbs_frontoffice_service/src:/var/www/src'
+      - './lbs_frontoffice_service/log:/var/log/api'
+    working_dir: /var/www/src
+    networks:
+      - lbs.net
+    depends_on:
+      - api.catalogue
 
   # service sql pour le stockage des commandes -
   # utilisé par l'api  commande et l'api suivi de fabrication
@@ -133,19 +183,6 @@ services:
     volumes:
       - './lbs_auth_service/sql:/var/sql'
 
-  # service administration des bases sql
-  adminer:
-    image: adminer
-    ports:
-      - '8080:8080'
-    networks:
-      - lbs.net
-  
-  ###########################################################
-  #   Service catalogue, réalisé avec le CMS Headless Directus
-  #   Service SQL géré par postgres
-  ###########################################################
-
   mysql.catalogue:
     image: 'mariadb:latest'
     command: '--default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_general_ci'
@@ -161,30 +198,11 @@ services:
     volumes:
       - './lbs_catalogue_service/sql:/var/sql'
 
-  api.catalogue:
-    image: directus/directus:latest
+    
+  # service administration des bases sql
+  adminer:
+    image: adminer
     ports:
-      - 19055:8055
-    volumes:
-      - ./lbs_catalogue_service/uploads:/directus/uploads
-      - ./lbs_catalogue_service/extensions:/directus/extensions
+      - '8080:8080'
     networks:
-      lbs.net:
-        aliases:
-          - api.catalogue.local
-    depends_on:
-      - mysql.catalogue
-    environment:
-      KEY: '255d861b-5ea1-5996-9aa3-922530ec40b1'
-      SECRET: '6116487b-cda1-52c2-b5b5-c8022c45e263'
-
-      DB_CLIENT: 'mysql'
-      DB_HOST: 'mysql.catalogue'
-      DB_PORT: '3306'
-      DB_DATABASE: 'catalogue_lbs'
-      DB_USER: 'catalogue_lbs'
-      DB_PASSWORD: 'catalogue_lbs'
-
-      CACHE_ENABLED: 'false'
-      ADMIN_EMAIL: 'admin@catalogue.net'
-      ADMIN_PASSWORD: 'catalogue'
+      - lbs.net

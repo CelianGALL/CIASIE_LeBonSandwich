@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Catalogue</title>
+	</head>
+
+	<body>
+		<main>
+			<h1>Bienvenue sur le catalogue.</h1>
+			<h2>Liste des catégories</h2>
+			<ul>
+				{% for categorie in categories %}
+					<a href="http://web.catalogue.local:19280/categorie/{{ categorie.libelle }}">
+						<li>
+							<h3>{{ categorie.libelle }}</h3>
+							<p>{{ categorie.description }}</p>
+						</li>
+					</a>
+				{% endfor %}
+			</ul>
+		</main>
+	</body>
+
+</html>

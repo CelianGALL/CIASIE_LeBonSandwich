@@ -46,6 +46,24 @@ ports:
       - '19043:443'
 ```
 
-Cela permet de les masquer au public et les services à l'intérieur de la machine hôte auront toujours accès aux services internes.
+Cela permet de les masquer au public et les services à l'intérieur de la machine hôte auront toujours accès aux services internes si les services ont un alias sur ce réseau :
+
+```yml
+networks:
+      lbs.net:
+            aliases:
+                  - api.auth.local
+```
+
+Pour y accéder depuis un service interne :
+
+```php
+$client->request(
+      "POST",
+      "http://api.auth.local",
+      [
+		'headers'=> ['Authorization' => "Bearer my_jwt"]
+	]);
+```
 
 Pour déployer sur webetu, faire attention au dns.

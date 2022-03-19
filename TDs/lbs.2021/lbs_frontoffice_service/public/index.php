@@ -9,7 +9,7 @@ require_once  __DIR__ . '/../src/vendor/autoload.php';
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-use \lbs\backoffice\app\controller\BackOfficeController;
+use \lbs\frontoffice\app\controller\FrontOfficeController;
 
 $configuration = [
 	'settings' => [
@@ -46,20 +46,20 @@ $configuration = [
 $c = new \Slim\Container($configuration);
 $app = new \Slim\App($c);
 
-$app->post(
-	'/auth[/]',
+$app->get(
+	'/categories[/]',
 	function (Request $req, Response $resp, $args): Response {
-		$ctrl = new BackOfficeController($this);
-		return $ctrl->authRedirect($req, $resp, $args);
+		$ctrl = new FrontOfficeController($this);
+		return $ctrl->buildCategories($req, $resp, $args);
 	}
-)->setName('auth');
+)->setName('categories');
 
 $app->get(
-	'/commands[/]',
+	'/categories/{libelle}',
 	function (Request $req, Response $resp, $args): Response {
-		$ctrl = new BackOfficeController($this);
-		return $ctrl->commandsRedirect($req, $resp, $args);
+		$ctrl = new FrontOfficeController($this);
+		return $ctrl->buildCategoriesItems($req, $resp, $args);
 	}
-)->setName('commands');
+)->setName('categorieItems');
 
 $app->run();
