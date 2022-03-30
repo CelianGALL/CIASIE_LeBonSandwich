@@ -26,17 +26,19 @@ services:
     environment:
       - VHOST_HOSTNAME=api.commande.local
       - VHOST_DOCROOT=/var/www/public
-    ports:
-      - '19080:80'
-      - '19043:443'
     volumes:
       - './lbs_commande_service/public:/var/www/public'
       - './lbs_commande_service/src:/var/www/src'
     working_dir: /var/www/src
     networks:
-      - lbs.net
+      lbs.net:
+        aliases:
+          - api.commande.local
     depends_on:
       - mysql.commande
+    # ports:
+    #   - '19080:80'
+    #   - '19043:443'
 
   # service api.suivi.fabrication : api backoffice pour le suivi 
   # de fabrication des commandes
@@ -112,6 +114,8 @@ services:
           - api.catalogue.local
     depends_on:
       - mysql.catalogue
+    ports:
+      - 19055:8055
     environment:
       KEY: '255d861b-5ea1-5996-9aa3-922530ec40b1'
       SECRET: '6116487b-cda1-52c2-b5b5-c8022c45e263'
@@ -126,8 +130,6 @@ services:
       CACHE_ENABLED: 'false'
       ADMIN_EMAIL: 'admin@catalogue.net'
       ADMIN_PASSWORD: 'catalogue'
-    # ports:
-    #   - 19055:8055
 
   # service web.catalogue.local : api frontoffice pour
   # la création de vues à l'aide du catalogue

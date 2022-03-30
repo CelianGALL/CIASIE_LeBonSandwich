@@ -61,6 +61,8 @@ class LBSAuthController
 			]));
 			return $rs;
 		} catch (\Exception $e) {
+			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="lbs auth"');
+			$rs = $rs->withAddedHeader('Content-Type', 'application/json;charset=utf-8');
 			$rs->getBody()->write(json_encode([
 				"type" => "error",
 				"error" => "401",
@@ -107,6 +109,7 @@ class LBSAuthController
 	public function checkCredentials(Request $rq, Response $rs, $args): Response
 	{
 		if (!$rq->hasHeader('Authorization')) {
+			$rs = $rs->withStatus(401);
 			$rs = $rs->withHeader('WWW-authenticate', 'Basic realm="commande_api api"');
 			$rs = $rs->withAddedHeader('Content-Type', 'application/json;charset=utf-8');
 			$rs->getBody()->write(json_encode([
@@ -122,6 +125,7 @@ class LBSAuthController
 			$secret = $this->container->settings['secret'];
 			$token = JWT::decode($jwt, new Key($secret, 'HS512'));
 
+			$rs = $rs->withStatus(200);
 			$rs = $rs->withHeader('Content-Type', 'application/json;charset=utf-8');
 			$rs->getBody()->write(json_encode([
 				"type" => "success",

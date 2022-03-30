@@ -55,7 +55,7 @@ $app->get(
 )->setName('categories');
 
 $app->get(
-	'/categories/{libelle}',
+	'/categories/items',
 	function (Request $req, Response $resp, $args): Response {
 		$ctrl = new FrontOfficeController($this);
 		return $ctrl->buildCategoriesItems($req, $resp, $args);

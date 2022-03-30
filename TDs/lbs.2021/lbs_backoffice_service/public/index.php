@@ -10,11 +10,15 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 use \lbs\backoffice\app\controller\BackOfficeController;
+use \lbs\backoffice\app\errors\ApiError;
 
 $configuration = [
 	'settings' => [
 		'displayErrorDetails' => true, // Mettre à false pour déployer l'api en mode production
 	],
+	// "errorHandler" => function ($c) {
+	// 	return new ApiError();
+	// },
 	"notFoundHandler" => function ($c) {
 		return function ($req, $resp) {
 			$resp = $resp->withStatus(404);
