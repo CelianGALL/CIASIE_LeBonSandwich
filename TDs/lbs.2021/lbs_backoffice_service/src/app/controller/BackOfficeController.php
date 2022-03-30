@@ -6,6 +6,11 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \GuzzleHttp\Client;
 
+/**
+ * BackOfficeController to handle redirections to api.auth.local
+ *
+ * @param  container  A slim dependencies container
+ */
 class BackOfficeController
 {
 	private $container = null;
@@ -15,6 +20,14 @@ class BackOfficeController
 		$this->container = $container;
 	}
 
+	/**
+	 * BackOffice method to redirect to api.auth.local
+	 *
+	 * @param  Request  A slim request object
+	 * @param  Response A slim response object
+	 * @param  args An array of arguments
+	 * @return Response A slim Response element
+	 */
 	public function authRedirect(Request $req, Response $resp, array $args): Response
 	{
 		$client = new Client([
@@ -38,6 +51,15 @@ class BackOfficeController
 		return $resp;
 	}
 
+
+	/**
+	 * BackOffice method to redirect to api.auth.local
+	 *
+	 * @param  Request  A slim request object
+	 * @param  Response A slim response object
+	 * @param  args An array of arguments
+	 * @return Response A slim Response element
+	 */
 	public function commandsRedirect(Request $req, Response $resp, array $args): Response
 	{
 		$client = new Client([

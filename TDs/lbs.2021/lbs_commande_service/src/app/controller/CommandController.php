@@ -11,6 +11,12 @@ use \lbs\command\app\models\Item;
 
 use Respect\Validation\Validator as v;
 
+
+/**
+ * CommandController to handle redirections to list commands
+ *
+ * @param  container  A slim dependencies container
+ */
 class CommandController
 {
 	private $container = null;
